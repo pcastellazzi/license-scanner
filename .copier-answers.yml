@@ -1,0 +1,9 @@
+# changes here will be overwritten by copier
+_commit: 490472b
+_src_path: /home/pcastellazzi/Workspace/python-project
+github_repo: https://github.com/pcastellazzi/license-scanner.git
+github_user: pcastellazzi
+project_module: license_scanner
+python_version: '3.11'
+user_email: pablo.castellazzi@icloud.com
+user_name: Pablo Castellazzi
