@@ -11,8 +11,11 @@ ignore = ["COM", "D"]
 select = ["ALL"]
 
 [lint.per-file-ignores]
+"scripts/**/*.py" = [
+    "T201", # allow print in scripts
+]
 "tests/**/*.py" = [
-    "PLR2004", # magic numbers on tests are ok
+    "PLR2004", # magic numbers in tests are ok
     "S101",    # assert in tests is ok
 ]
 
