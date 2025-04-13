@@ -38,8 +38,6 @@ classifiers = [
     # "Development Status :: 7 - Inactive",
 
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Operating System :: Unix",
 
@@ -49,13 +47,12 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python",
 
     "Topic :: Utilities",
 ]
 
-dependencies = []
+dependencies = ["packaging>=24.2", "trove-classifiers>=2025.3.19.19"]
 
 [dependency-groups]
 dev = ["covdefaults>=2.3", "coverage>=7.7", "pytest-cov>=6.0", "pytest>=8.3"]

@@ -11,9 +11,9 @@ ignore = ["COM", "D"]
 select = ["ALL"]
 
 [lint.per-file-ignores]
-"scripts/**/*.py" = [
-    "T201", # allow print in scripts
-]
+"scripts/**/*.py" = ["T201"]            # allow print in scripts
+"src/license_scanner/cli.py" = ["T201"] # allow print in CLI
+
 "tests/**/*.py" = [
     "PLR2004", # magic numbers in tests are ok
     "S101",    # assert in tests is ok
