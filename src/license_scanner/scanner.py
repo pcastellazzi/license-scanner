@@ -1,3 +1,4 @@
+import sys
 from typing import TYPE_CHECKING
 
 from license_scanner import PackageLicenses
@@ -35,16 +36,34 @@ def scan_directory(base: "Path") -> "Iterator[PackageLicenses]":
             raise ScanError(message) from None
 
 
-def scan_distributions() -> "Iterator[PackageLicenses]":
-    import importlib.metadata
+if sys.version_info >= (3, 12):
 
-    # Distribution.metadata is an email.message.Message instance.
-    # It returns None instead of raising KeyError
-    for distribution in importlib.metadata.distributions():
-        yield PackageLicenses(
-            name=distribution.name,
-            version=distribution.version,
-            license=distribution.metadata["License"],
-            license_expression=distribution.metadata["License-Expression"],
-            classifiers=distribution.metadata.get_all("Classifier", []),
-        )
+    def scan_distributions() -> "Iterator[PackageLicenses]":
+        import importlib.metadata
+
+        # Distribution.metadata is an email.message.Message instance.
+        # __getitem__ was fixed in 3.12 and a get() was added, we use it
+        for dist in importlib.metadata.distributions():
+            yield PackageLicenses(
+                name=dist.name,
+                version=dist.version,
+                license=dist.metadata.get("License", None),
+                license_expression=dist.metadata.get("License-Expression", None),
+                classifiers=dist.metadata.get_all("Classifier", []),
+            )
+
+else:
+
+    def scan_distributions() -> "Iterator[PackageLicenses]":
+        import importlib.metadata
+
+        # Distribution.metadata is an email.message.Message instance.
+        # __getitem__ returns None instead of raising KeyError
+        for dist in importlib.metadata.distributions():
+            yield PackageLicenses(
+                name=dist.name,
+                version=dist.version,
+                license=dist.metadata["License"],
+                license_expression=dist.metadata["License-Expression"],
+                classifiers=dist.metadata.get_all("Classifier", []),
+            )
