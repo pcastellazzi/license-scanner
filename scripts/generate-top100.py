@@ -48,6 +48,7 @@ from pydantic import AliasGenerator, AliasPath, BaseModel, ConfigDict, Validatio
 
 PYPI_STATS = "https://pypi.org/stats/"
 PYPI_PACKAGE_METADATA = "https://pypi.org/pypi/%s/json"
+ROOT_DIR = pathlib.Path(__file__).parent.parent
 
 
 class Stats(BaseModel):
@@ -88,7 +89,7 @@ class PackageMetadata(BaseModel):
 
 @contextlib.contextmanager
 def http_client() -> Generator[Callable[[str], str]]:
-    cache = diskcache.Cache(pathlib.Path.cwd() / ".cache")
+    cache = diskcache.Cache(ROOT_DIR / ".cache")
     client = httpx.Client()
     client.follow_redirects = False
     client.headers["Accept"] = "application/json"
@@ -106,7 +107,7 @@ def http_client() -> Generator[Callable[[str], str]]:
 
 
 def main() -> None:
-    metadata_dir = pathlib.Path.cwd() / "tests" / "samples"
+    metadata_dir = ROOT_DIR / "tests" / "top100"
     metadata_dir.mkdir(exist_ok=True, parents=True)
 
     visited: set[str] = set()

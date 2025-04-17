@@ -92,9 +92,9 @@ class PackageLicenses:
                         License(text, LicenseSource.CLASSIFIER, LicenseState.DEPRECATED)
                     )
                     continue
-            licenses.append(
-                License(classifier, LicenseSource.CLASSIFIER, LicenseState.INVALID)
-            )
+                licenses.append(
+                    License(classifier, LicenseSource.CLASSIFIER, LicenseState.INVALID)
+                )
         return licenses
 
     def _parse_spdx_expression(self, expression: str) -> bool:

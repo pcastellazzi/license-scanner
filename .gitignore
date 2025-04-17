@@ -14,4 +14,4 @@ __pycache__
 
 # project specific
 /.cache
-/tests/samples
+/tests/top100

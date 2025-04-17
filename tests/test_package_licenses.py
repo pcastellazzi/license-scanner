@@ -77,6 +77,20 @@ def test_valid_classifier() -> None:
         version="1.0.0",
         license=None,
         license_expression=None,
+        classifiers=["Operating System :: Unix"],
+    )
+    assert len(package.licenses) == 1
+    assert package.licenses[0].text == "UNKNOWN"
+    assert package.licenses[0].source == LicenseSource.UNKNOWN
+    assert package.licenses[0].state == LicenseState.UNKNOWN
+
+
+def test_valid_license_classifier() -> None:
+    package = PackageLicenses(
+        name="test-package",
+        version="1.0.0",
+        license=None,
+        license_expression=None,
         classifiers=["License :: OSI Approved :: GNU General Public License (GPL)"],
     )
     assert len(package.licenses) == 1
@@ -94,9 +108,9 @@ def test_invalid_classifier() -> None:
         classifiers=["INVALID"],
     )
     assert len(package.licenses) == 1
-    assert package.licenses[0].text == "INVALID"
-    assert package.licenses[0].source == LicenseSource.CLASSIFIER
-    assert package.licenses[0].state == LicenseState.INVALID
+    assert package.licenses[0].text == "UNKNOWN"
+    assert package.licenses[0].source == LicenseSource.UNKNOWN
+    assert package.licenses[0].state == LicenseState.UNKNOWN
 
 
 def test_invalid_license_classifier() -> None:

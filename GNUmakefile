@@ -37,6 +37,11 @@ test:
 	uv run -- pytest $(PYTEST_SETTINGS)
 
 
+.PHONY: top100
+top100:
+	# uv export --script scripts/generate-test-data.py | uv pip install -r -
+	uv run ./scripts/generate-top100.py
+
 .PHONY: integration
 integration: $(PYTHON_VERSIONS)
 

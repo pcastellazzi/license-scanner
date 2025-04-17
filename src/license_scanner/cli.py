@@ -28,10 +28,10 @@ License States:
 """
 
 import os
+import sys
 from argparse import ArgumentError, ArgumentParser, ArgumentTypeError
 from json import dump as jsondump
 from pathlib import Path
-from sys import stderr, stdout
 from typing import TYPE_CHECKING
 
 from license_scanner.scanner import ScanError, scan_directory, scan_distributions
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 class CustomArgumentParser(ArgumentParser):
     def exit(self, status: int = 0, message: str | None = None) -> "NoReturn":
         if message:
-            self._print_message(message, stderr)
+            self._print_message(message, sys.stderr)
         raise ApplicationError(exit_code=status)
 
 
@@ -111,22 +111,13 @@ class Application:
 
     def run(self) -> int:
         try:
-            self._create_output_directory()
             licenses = list(self._get_licenses())
-            jsondump(licenses, stdout, indent=4)
+            jsondump(licenses, sys.stdout, indent=4)
         except ApplicationError as exc:
-            print(f"ERROR: {exc}", file=stderr, flush=True)
+            print(f"ERROR: {exc}", file=sys.stderr, flush=True)
             return exc.exit_code
         else:
             return 0
-
-    def _create_output_directory(self) -> None:
-        if self._odir:
-            try:
-                self._odir.mkdir(exist_ok=True, parents=True)
-            except OSError as exc:
-                message = f"Can't create output directory: {self._odir}. {exc}"
-                raise ApplicationError(message) from exc
 
     def _get_packages(self) -> "Iterator[PackageLicenses]":
         if self._idir:
@@ -144,7 +135,7 @@ class Application:
                 yield {
                     "package-name": package.name,
                     "package-version": package.version,
-                    "license": license.text[0:48],
+                    "license": license.text,
                     "source": license.source.capitalize(),
                     "state": license.state.upper(),
                 }
@@ -167,5 +158,5 @@ def main() -> int:
         return app.run()
     except ApplicationError as exc:
         if exc.message:
-            print(f"ERROR: {exc}", file=stderr, flush=True)
+            print(f"ERROR: {exc}", file=sys.stderr, flush=True)
         return exc.exit_code
