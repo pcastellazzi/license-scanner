@@ -5,7 +5,7 @@ If the optional --output-directory flag is present, text that looks like a
 license file will be stored there. This happens when the text of a license is
 embedded in the license field of a package metadata.
 
-Licensing Rules:
+Rules:
 
 - SPDX identifiers are considered valid licenses
 - Trove classifiers are considered valid licenses if they are not deprecated
@@ -27,7 +27,8 @@ License States:
 - VALID: A valid license expression or trove classifier
 """
 
-from argparse import ArgumentError, ArgumentParser
+import os
+from argparse import ArgumentError, ArgumentParser, ArgumentTypeError
 from json import dump as jsondump
 from pathlib import Path
 from sys import stderr, stdout
@@ -37,13 +38,20 @@ from license_scanner.scanner import ScanError, scan_directory, scan_distribution
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-    from typing import Self
+    from typing import NoReturn, Self
 
     from license_scanner import PackageLicenses
 
 
+class CustomArgumentParser(ArgumentParser):
+    def exit(self, status: int = 0, message: str | None = None) -> "NoReturn":
+        if message:
+            self._print_message(message, stderr)
+        raise ApplicationError(exit_code=status)
+
+
 class ApplicationError(Exception):
-    def __init__(self, message: str, exit_code: int = 1) -> None:
+    def __init__(self, message: str | None = None, exit_code: int = 1) -> None:
         super().__init__(message)
         self.exit_code = exit_code
         self.message = message
@@ -52,17 +60,39 @@ class ApplicationError(Exception):
 class Application:
     @classmethod
     def from_args(cls, argv: "Sequence[str] | None" = None) -> "Self":
-        argp = ArgumentParser(prog="license-scanner", exit_on_error=False)
+        def input_directory(value: str) -> Path:
+            path = Path(value)
+            if path.is_dir() and os.access(path, os.R_OK):
+                return path
+            message = f"invalid input directory: {path}"
+            raise ArgumentTypeError(message)
+
+        def output_directory(value: str) -> Path:
+            path = Path(value)
+
+            try:
+                path.mkdir(exist_ok=True, parents=True)
+            except OSError as exc:
+                message = f"invalid output directory: {path}"
+                raise ArgumentTypeError(message) from exc
+
+            if os.access(path, os.W_OK):
+                return path
+
+            message = f"invalid output directory: {path}"
+            raise ArgumentTypeError(message)
+
+        argp = CustomArgumentParser(prog="license-scanner", exit_on_error=False)
         argp.add_argument(
             "-i",
             "--input-directory",
-            type=Path,
+            type=input_directory,
             help="Directory to scan for license files",
         )
         argp.add_argument(
             "-o",
             "--output-directory",
-            type=Path,
+            type=output_directory,
             help="Directory to store license files",
         )
         try:
@@ -136,5 +166,6 @@ def main() -> int:
         app = Application.from_args()
         return app.run()
     except ApplicationError as exc:
-        print(f"ERROR: {exc}", file=stderr, flush=True)
+        if exc.message:
+            print(f"ERROR: {exc}", file=stderr, flush=True)
         return exc.exit_code

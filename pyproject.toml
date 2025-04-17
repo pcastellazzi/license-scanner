@@ -61,6 +61,7 @@ dev = ["covdefaults>=2.3", "coverage>=7.7", "pytest-cov>=6.0", "pytest>=8.3"]
 
 [tool.pytest.ini_options]
 addopts = ["--quiet", "--strict-markers", "-Werror"]
+tmp_path_retention_policy = "none"
 
 [tool.uv]
 python-preference = "only-managed"
