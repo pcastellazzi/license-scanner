@@ -36,7 +36,7 @@ def scan_directory(base: "Path") -> "Iterator[PackageLicenses]":
             raise ScanError(message) from None
 
 
-if sys.version_info >= (3, 12):
+if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
 
     def scan_distributions() -> "Iterator[PackageLicenses]":
         import importlib.metadata
@@ -52,7 +52,7 @@ if sys.version_info >= (3, 12):
                 classifiers=dist.metadata.get_all("Classifier", []),
             )
 
-else:
+else:  # pragma: <3.12 cover
 
     def scan_distributions() -> "Iterator[PackageLicenses]":
         import importlib.metadata

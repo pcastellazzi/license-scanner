@@ -109,37 +109,30 @@ class Application:
         self._idir = input_directory
         self._odir = output_directory
 
-    def run(self) -> int:
+    def run(self) -> None:
+        licenses = list(self._get_licenses())
+        jsondump(licenses, sys.stdout, indent=4)
+
+    def _get_licenses(self) -> "Iterator[dict[str,str]]":
         try:
-            licenses = list(self._get_licenses())
-            jsondump(licenses, sys.stdout, indent=4)
-        except ApplicationError as exc:
-            print(f"ERROR: {exc}", file=sys.stderr, flush=True)
-            return exc.exit_code
-        else:
-            return 0
+            for package in self._get_packages():
+                for license in package.licenses:  # noqa: A001
+                    yield {
+                        "package-name": package.name,
+                        "package-version": package.version,
+                        "license": license.text,
+                        "source": license.source.capitalize(),
+                        "state": license.state.upper(),
+                    }
+                    self._try_save_license(package.license, license.text)
+        except ScanError as exc:
+            message = f"Can't scan directory: {self._idir}. {exc}"
+            raise ApplicationError(message) from None
 
     def _get_packages(self) -> "Iterator[PackageLicenses]":
         if self._idir:
-            try:
-                return scan_directory(self._idir)
-            except ScanError as exc:
-                message = f"Can't scan directory: {self._idir}. {exc}"
-                raise ApplicationError(message) from exc
-        else:
-            return scan_distributions()
-
-    def _get_licenses(self) -> "Iterator[dict[str,str]]":
-        for package in self._get_packages():
-            for license in package.licenses:  # noqa: A001
-                yield {
-                    "package-name": package.name,
-                    "package-version": package.version,
-                    "license": license.text,
-                    "source": license.source.capitalize(),
-                    "state": license.state.upper(),
-                }
-                self._try_save_license(package.license, license.text)
+            return scan_directory(self._idir)
+        return scan_distributions()
 
     def _try_save_license(self, text: str | None, identifier: str) -> None:
         if self._odir and text and identifier.startswith("sha256:"):
@@ -152,11 +145,13 @@ class Application:
                 raise ApplicationError(message) from exc
 
 
-def main() -> int:
+def main(argv: "Sequence[str] | None" = None) -> int:
     try:
-        app = Application.from_args()
-        return app.run()
+        app = Application.from_args(argv)
+        app.run()
     except ApplicationError as exc:
         if exc.message:
             print(f"ERROR: {exc}", file=sys.stderr, flush=True)
         return exc.exit_code
+    else:
+        return 0
