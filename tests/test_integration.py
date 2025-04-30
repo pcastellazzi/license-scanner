@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from license_scanner import LicenseSource, LicenseState
-from license_scanner.cli import Application
+from license_scanner.cli import main
 
 TOP100 = Path(__file__).parent / "top100"
 
@@ -32,8 +32,7 @@ def verify_output(odir: Path, output: str) -> None:
 
 def test_current_project(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     odir = tmp_path / "output"
-    app = Application.from_args(["-o", str(odir)])
-    assert app.run() == 0
+    assert main(["-o", str(odir)]) == 0
 
     output = capsys.readouterr()
     assert output.err == ""
@@ -43,8 +42,7 @@ def test_current_project(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> 
 
 def test_top100(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     odir = tmp_path / "output"
-    app = Application.from_args(argv=["-i", str(TOP100), "-o", str(odir)])
-    assert app.run() == 0
+    assert main(argv=["-i", str(TOP100), "-o", str(odir)]) == 0
 
     output = capsys.readouterr()
     assert output.err == ""

@@ -29,7 +29,7 @@ check:
 
 .PHONY: coverage
 coverage:
-	uv run -- pytest $(PYTEST_COVERAGE)
+	uv run -- pytest $(PYTEST_COVERAGE) $(PYTEST_SETTINGS)
 
 
 .PHONY: test
@@ -39,11 +39,18 @@ test:
 
 .PHONY: top100
 top100:
-	# uv export --script scripts/generate-test-data.py | uv pip install -r -
-	uv run ./scripts/generate-top100.py
+	uv run ./scripts/top100.py
+
+
+.PHONY: update-dependencies
+update-dependencies:
+	uv sync --upgrade
+	uvx pre-commit autoupdate
+
 
 .PHONY: integration
 integration: $(PYTHON_VERSIONS)
+
 
 .PHONY: $(PYTHON_VERSIONS)
 $(PYTHON_VERSIONS):

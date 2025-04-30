@@ -29,7 +29,12 @@ License States:
 
 import os
 import sys
-from argparse import ArgumentError, ArgumentParser, ArgumentTypeError
+from argparse import (
+    ArgumentError,
+    ArgumentParser,
+    ArgumentTypeError,
+    RawDescriptionHelpFormatter,
+)
 from json import dump as jsondump
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -82,7 +87,12 @@ class Application:
             message = f"invalid output directory: {path}"
             raise ArgumentTypeError(message)
 
-        argp = CustomArgumentParser(prog="license-scanner", exit_on_error=False)
+        argp = CustomArgumentParser(
+            prog="license-scanner",
+            description=__doc__,
+            formatter_class=RawDescriptionHelpFormatter,
+            exit_on_error=False,
+        )
         argp.add_argument(
             "-i",
             "--input-directory",

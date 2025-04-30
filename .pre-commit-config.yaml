@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/google/osv-scanner/
-    rev: "v2.0.1"
+    rev: "v2.2.2"
     hooks:
       - id: osv-scanner
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.24.3
+    rev: v8.28.0
     hooks:
       - id: gitleaks
 
@@ -15,13 +15,13 @@ repos:
       - id: reuse-lint-file
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.6.14"
+    rev: "0.8.13"
     hooks:
       - id: uv-lock
       - id: uv-sync
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.5"
+    rev: "v0.12.10"
     hooks:
-      - id: ruff
+      - id: ruff-check
       - id: ruff-format
