@@ -13,5 +13,5 @@
 __pycache__
 
 # project specific
-/.cache
 /tests/top100
+/tests/uvlock
